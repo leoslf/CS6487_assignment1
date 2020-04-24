@@ -1,0 +1,54 @@
+[[1469.5 1082.2]
+ [1403.8 1093.5]
+ [1403.8 1093.5]
+ ...
+ [1473.1 1067.5]
+ [1472.4 1067.2]
+ [1472.9 1067.5]] [0.01672584 4.53344386 4.18943947 ... 4.38742264 4.38409255 4.38164211]
+INFO:GPR:__init__:self.Y.shape: TensorShape([Dimension(1213), Dimension(2)])
+WARNING:tensorflow:new_func:From /usr/local/lib/python3.6/dist-packages/tensorflow/python/ops/init_ops.py:1251: calling VarianceScaling.__init__ (from tensorflow.python.ops.init_ops) with dtype is deprecated and will be removed in a future version.
+Instructions for updating:
+Call initializer instance with the dtype argument instead of passing it to the constructor
+TRACE:tensorflow:_get_single_variable:Created variable f_hat:0 with shape (1213, 2) and init <tensorflow.python.ops.init_ops.GlorotUniform object at 0x14601031a2b0>
+TRACE:tensorflow.linalg:predict:CALL *(<tensorflow.linalg.GPR object at 0x14601036d080>, array([[1469.5, 1082.2],
+       [1403.8, 1093.5],
+       [1403.8, 1093.5],
+       ...,
+       [1473.1, 1067.5],
+       [1472.4, 1067.2],
+       [1472.9, 1067.5]])) **{}
+WARNING:tensorflow:new_func:From /usr/local/lib/python3.6/dist-packages/tensorflow/python/training/saver.py:1276: checkpoint_exists (from tensorflow.python.training.checkpoint_management) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use standard file APIs to check for files with this prefix.
+INFO:tensorflow:restore:Restoring parameters from ./model/
+TRACE:tensorflow.linalg:predict:RETURN (array([[[-16.69698476],
+        [ -5.45191641]],
+
+       [[ -0.25970308],
+        [ 15.62170976]],
+
+       [[ -0.25970308],
+        [ 15.62170976]],
+
+       ...,
+
+       [[ -0.8076187 ],
+        [  1.8230101 ]],
+
+       [[ -1.46135526],
+        [  1.26783118]],
+
+       [[ -0.8896832 ],
+        [  1.82486323]]]), array([[-5.47678164e-01, -6.70414912e-01, -3.51838441e-01, ...,
+         1.65429678e-04,  5.40424247e-05,  1.53414033e-05],
+       [-8.38874704e-16, -1.01669649e-14, -2.65585690e-13, ...,
+         3.17896671e-03,  5.00806943e-02,  1.37682244e-01],
+       [-8.38874704e-16, -1.01669649e-14, -2.65585690e-13, ...,
+         3.17896671e-03,  5.00806943e-02,  1.37682244e-01],
+       ...,
+       [-6.14213044e-04, -1.58582066e-03, -2.98663654e-03, ...,
+         7.68786179e-02,  9.47435217e-02,  5.87519429e-02],
+       [-1.97877693e-03, -4.88581430e-03, -8.51195012e-03, ...,
+         6.92624689e-02,  7.75294573e-02,  4.53908231e-02],
+       [-6.58306128e-04, -1.70442391e-03, -3.22402595e-03, ...,
+         7.68993145e-02,  9.47684125e-02,  5.87517533e-02]]))
