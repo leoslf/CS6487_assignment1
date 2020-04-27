@@ -139,3 +139,4 @@ social-checkin-prediction/
 logs/*
 
 model/
+*.txt
