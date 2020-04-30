@@ -141,3 +141,6 @@ logs/*
 model/
 *.txt
 output/
+*.err
+*.log
+*.out

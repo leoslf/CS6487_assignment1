@@ -43,7 +43,7 @@ def process_user(id):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s:%(filename)s:%(funcName)s: %(message)s")
-    user_ids = [(i + 1) for i in range(10)]
+    user_ids = [(i + 1) for i in range(1)]
 
     with Pool() as pool:
         result = pool.map_async(process_user, user_ids)

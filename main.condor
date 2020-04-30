@@ -5,11 +5,11 @@ notification	= Never
 notify_user	= 
 getenv		= True
 
-name		= __main__2
+name		= __main__
 # main 
 executable 	= /usr/bin/python3 
 # command line arguments
-arguments  = $(name).py --path /public/lfsin3
+arguments  = $(name).py
 # optional file for stdin
 input      =
 # $(name).in
@@ -17,6 +17,6 @@ input      =
 output     = $(name).out
 error      = $(name).err
 log        = $(name).log
-request_gpus = 1
+# request_gpus = 1
 
 queue

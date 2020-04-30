@@ -188,7 +188,7 @@ class GPR:
 
             return np.vectorize(f, signature="(m),(m,m)->(k)")(mu_star, Sigma_star)
        
-        y_stars = np.vectorize(get_y_star, signature="(m)->(n,m)")(y_star_domain.T)
+        y_stars = np.vectorize(get_y_star, signature="(m)->(n,k)")(y_star_domain.T)
         y_stars_mean = np.mean(y_stars, axis = 0)
         y_stars_std = np.std(y_stars, axis = 0)
 
