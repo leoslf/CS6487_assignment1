@@ -1,4 +1,5 @@
-from functools import *
+import sys
+import os
 
 import weakref
 
@@ -10,7 +11,11 @@ from itertools import *
 
 import logging
 
+from contextlib import contextmanager
+
 import hashlib
+
+from sklearn.gaussian_process.kernels import *
 
 from scipy.stats import multivariate_normal as mn
 from scipy.special import iv
@@ -47,6 +52,17 @@ def covariance_matrix(weights, xs, mean):
 def polar_to_cartesian(t):
     return np.row_stack((np.cos(t), np.sin(t)))
 
+def cartesian_to_polar(cartesian):
+    values = np.arctan2(cartesian[:, 0], cartesian[:, 1]).reshape(-1, 1)
+    values[values < 0] += np.pi
+    return values
+
+def normalize_radians(radians):
+    return radians / (2 * np.pi)
+
+def get_kernel(name):
+    return globals()[name]()
+
 def partitioned_matrix(M11, M12, M21, M22):
     assert M11.shape[0] == M12.shape[0]
     assert M11.shape[1] == M21.shape[1]
@@ -58,6 +74,21 @@ def diagonally_partitioned_matrix(M11, M22):
     M12 = np.zeros((M11.shape[0], M22.shape[1]))
     M21 = np.zeros((M22.shape[0], M11.shape[1]))
     return partitioned_matrix(M11, M12, M21, M22)
+
+@contextmanager
+def pushd(new_dir, create=False):
+    previous_dir = os.getcwd()
+    if not os.path.exists(new_dir):
+        if create:
+            os.mkdir(new_dir)
+        else:
+            raise ValueError("directory: \"%s\" does not exists" % new_dir)
+
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(previous_dir)
 
 class MultivariateGaussHermiteQuad:
     def __init__(self, d, mu, Sigma, num_points):
@@ -78,6 +109,12 @@ class MultivariateGaussHermiteQuad:
         return len(self.X.T)
 
     def get_quadrature_points(self):
+        r""" Generating Quadrature Points
+
+        Univariate Gauss-Hermite Quadrature
+        Let :math:`\{w_i\}_{i = 1}^{n}, \{x_i\}_{i = 1}^{n}` be the weights and quadrature points.
+
+        """
         # logger.info("Generating univariate Gauss-Hermite Quadrature points with num_points: %d", self.num_points)
         x, w = np.polynomial.hermite.hermgauss(self.num_points)
         # Apply normal pdf

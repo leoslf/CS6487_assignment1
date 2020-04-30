@@ -140,3 +140,4 @@ logs/*
 
 model/
 *.txt
+output/
