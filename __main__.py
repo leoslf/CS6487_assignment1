@@ -30,12 +30,12 @@ def process_user(id):
             info("Training with kernel %s", kernel)
             model = GPR(train_X, train_Y, kernel = get_kernel(kernel))
 
-            f_star, y_star = model.predict(train_X)
+            f_star, y_star, y_star_std = model.predict(train_X)
 
             with pushd(kernel, create=True):
                 output_filename = "output_%02d.csv" % id
-                output = np.column_stack((train_X, normalize_radians(train_Y), f_star, y_star))
-                output_df = pd.DataFrame(output, columns = ["x", "y", "t", "f_star", "y_star"])
+                output = np.column_stack((train_X, normalize_radians(train_Y), f_star, y_star, y_star_std))
+                output_df = pd.DataFrame(output, columns = ["x", "y", "t", "f_star", "y_star", "y_star_std"])
                 output_df.to_csv(output_filename, index=False)
                 info("saved output: \"%s\"" % output_filename)
 

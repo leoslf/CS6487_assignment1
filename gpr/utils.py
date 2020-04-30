@@ -141,7 +141,7 @@ class MultivariateGaussHermiteQuad:
         if np.any(lambdas < 0):
             raise ValueError("Sigma is not Positive Definite")
         
-        return (V.T @ np.diag(np.sqrt(lambdas)) @ X) + mu
+        return (V @ np.diag(np.sqrt(lambdas)) @ X) + mu
 
 
     def evaluate(self, f: callable, *argv, mean_only = False, **kwargs):
@@ -178,14 +178,12 @@ class MultivariateGaussHermiteQuad:
         probabilities = terms / Z
 
 
-        mean = np.sum(probabilities * self.X, axis=1)
-        cov  = covariance_matrix(probabilities, self.X, mean)
-        
+        mean = np.sum(probabilities, axis=1)
         # logger.info("mean.shape: %r", mean.shape)
 
         if mean_only:
             return mean
-        return probabilities, self.X, mean, cov
+        return probabilities, self.X, mean
 
 
 
