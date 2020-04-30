@@ -186,7 +186,7 @@ class GPR:
             def f(mu, Sigma):
                 return MultivariateGaussHermiteQuad.predict(2, mu, Sigma, self.quad_samples, self.log_observation_likelihood, y_ast.reshape(-1, 1), mean_only = True)
 
-            return np.vectorize(f, signature="(m),(m,m)->(m)")(mu_star, Sigma_star)
+            return np.vectorize(f, signature="(m),(m,m)->(k)")(mu_star, Sigma_star)
        
         y_stars = np.vectorize(get_y_star, signature="(m)->(n,m)")(y_star_domain.T)
         y_stars_mean = np.mean(y_stars, axis = 0)
