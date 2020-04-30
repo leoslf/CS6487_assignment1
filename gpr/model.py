@@ -22,7 +22,7 @@ class GPR:
         self.Y = np.apply_along_axis(lambda t: np.array([np.cos(t), np.sin(t)]).T, 0, Y)
         self.logger.info("self.Y.shape: %r", self.Y.shape)
         self.kernel = kernel
-        self.tol = np.sqrt(tol)
+        self.tol = tol
         self.quad_samples = quad_samples
         self.epsilon = epsilon
         self._K = self.kernel(self.X)
@@ -90,9 +90,8 @@ class GPR:
             f_new = self.get_inv_K_w_inv(f, self._K) @ (self.flatten(f) + inv_w @ grad)
             f_new = f_new.reshape(self.X.shape)
             
-            # Using without taking square root
-            error = self.norm_squared(self.flatten(f_new - f)) # , axis = 1)
-            self.logger.debug("norm(f_new - f)^2: %f", error)
+            error = norm(self.flatten(f_new - f))
+            self.logger.debug("norm(f_new - f): %f", error)
             if error <= self.tol:
                 break
 

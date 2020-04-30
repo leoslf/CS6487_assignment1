@@ -26,7 +26,7 @@ def process_user(id):
     models = []
 
     with pushd("output", create=True):
-        for kernel in ["RBF", "WhiteKernel", "PairwiseKernel"]:
+        for kernel in ["RBF", "WhiteKernel"]:
             info("Training with kernel %s", kernel)
             model = GPR(train_X, train_Y, kernel = get_kernel(kernel))
 
