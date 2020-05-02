@@ -16,7 +16,7 @@ import logging
 from gpr.utils import *
 
 class GPR:
-    def __init__(self, X, Y, kernel, tol=1e-6, quad_samples=10, epsilon=1e-16):
+    def __init__(self, X, Y, kernel, tol=1e-5, quad_samples=10, epsilon=1e-16, y_star_points = 10):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.X = X.copy()
         self.Y = np.apply_along_axis(lambda t: np.array([np.cos(t), np.sin(t)]).T, 0, Y)
@@ -24,6 +24,7 @@ class GPR:
         self.kernel = kernel
         self.tol = tol
         self.quad_samples = quad_samples
+        self.y_star_points = y_star_points
         self.epsilon = epsilon
         self._K = self.kernel(self.X)
         self.K = diagonally_partitioned_matrix(self._K, self._K)
@@ -179,19 +180,29 @@ class GPR:
         mu_star = f_star = self.mu_stars(k_stars)
         Sigma_star = self.Sigma_stars(k_stars, k_dstars)
 
-        ts = np.linspace(0, 1, 10) * (2 * np.pi)
+        ts = np.linspace(0, (2 * np.pi), self.y_star_points) 
         y_star_domain = np.apply_along_axis(polar_to_cartesian, 0, ts)
 
-        def get_y_star(y_ast):
+        def get_y_star_distribution(y_ast):
+            y_ast = y_ast.reshape(-1, 1)
             def f(mu, Sigma):
-                return MultivariateGaussHermiteQuad.predict(2, mu, Sigma, self.quad_samples, self.log_observation_likelihood, y_ast.reshape(-1, 1), mean_only = True)
+                # return MultivariateGaussHermiteQuad.predict(2, mu, Sigma, self.quad_samples, self.log_observation_likelihood, y_ast, mean_only = True)
+                return MultivariateGaussHermiteQuad.predict(2, mu, Sigma, self.quad_samples, self.log_observation_likelihood, y_ast, mean_only = True).flatten()
 
-            return np.vectorize(f, signature="(m),(m,m)->(k)")(mu_star, Sigma_star)
+            # return np.vectorize(f, signature="(m),(m,m)->(n)")(mu_star, Sigma_star)
+            return np.vectorize(f, signature="(m),(m,m)->(n)")(mu_star, Sigma_star).flatten()
        
-        y_stars = np.vectorize(get_y_star, signature="(m)->(n,k)")(y_star_domain.T)
-        y_stars_mean = np.mean(y_stars, axis = 0)
-        y_stars_std = np.std(y_stars, axis = 0)
+        # y_stars_distribution = np.vectorize(get_y_star_distribution, signature="(n)->(m,n)")(y_star_domain.T)
+        y_stars_distribution = np.vectorize(get_y_star_distribution, signature="(n)->(m)")(y_star_domain.T)
+        # (y_star_points, len(X))
+        # (y_star_points, 2)
+        y_stars = np.vectorize(lambda p: p.reshape(-1, 1) * y_star_domain.T, signature="(n)->(n,k)")(y_stars_distribution.T)
+        y_stars_mean = np.mean(y_stars, axis = 1)
+        y_stars_std = np.std(y_stars, axis = 1)
 
+        # self.logger.info("y_stars_distribution.shape: %r, y_stars.shape: %r, y_stars_mean.shape: %r, y_stars_std.shape: %r", y_stars_distribution.shape, y_stars.shape, y_stars_mean.shape, y_stars_std.shape)
 
-        return tuple(map(compose(normalize_radians, cartesian_to_polar), (f_star, y_stars_mean, y_stars_std)))
+        kappa = norm(f_star, axis = 1)
+
+        return [kappa] + list(map(compose(normalize_radians, cartesian_to_polar), (f_star, y_stars_mean, y_stars_std))) + [(ts, y_stars_distribution)]
 

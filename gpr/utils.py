@@ -54,7 +54,7 @@ def polar_to_cartesian(t):
 
 def cartesian_to_polar(cartesian):
     values = np.arctan2(cartesian[:, 0], cartesian[:, 1]).reshape(-1, 1)
-    values[values < 0] += np.pi
+    values[values < 0] += 2 * np.pi
     return values
 
 def normalize_radians(radians):
@@ -130,7 +130,8 @@ class MultivariateGaussHermiteQuad:
         # logger.debug("Computing the cartesian product of W")
         _W = cartesian_product(w, self.d)
         # Using sum of logs to reduce inaccuracy
-        W = np.array(list((compose(np.sum, np.log)(w) for w in _W.T)))
+        # W = np.array(list((compose(np.sum, np.log)(w) for w in _W.T)))
+        W = np.vectorize(compose(np.sum, np.log), signature="(d)->()")(_W.T)
 
         return X, W
 
@@ -162,24 +163,21 @@ class MultivariateGaussHermiteQuad:
 
         # logger.info("self.X.shape: %r", self.X.shape)
 
-        terms = np.array(list((f(*argv, x.reshape(-1, 1), **kwargs) for x in self.X.T))).reshape(-1) + self.W
+        terms = np.vectorize(lambda x: f(*argv, x.reshape(-1, 1), **kwargs), signature="(d)->()")(self.X.T)
+        # with np.printoptions(suppress=True, precision=4):
+        #     logger.info("terms: %r", np.exp(terms))
+        #     logger.info("terms.shape: %r", terms.shape)
+        #     logger.info("self.W.shape: %r", self.W.shape)
+        
+        terms += self.W
+        # terms = np.array(list((f(*argv, x.reshape(-1, 1), **kwargs) for x in self.X.T))).reshape(-1) + self.W
 
         # numerical safeguard: to prevent blowing up when taking exp
-        terms += 700 - np.max(terms)
+        # terms += 700 - np.max(terms)
 
         # Back to normal scale
         terms = np.exp(terms).reshape(1, -1)
-
-        # logger.info("terms.shape: %r", terms.shape)
-
-        # Normalization Constant
-        Z = np.sum(terms)
-
-        probabilities = terms / Z
-
-
-        mean = np.sum(probabilities, axis=1)
-        # logger.info("mean.shape: %r", mean.shape)
+        mean = np.sum(terms, axis=1)
 
         if mean_only:
             return mean
